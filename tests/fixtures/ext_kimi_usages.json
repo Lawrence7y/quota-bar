@@ -1,0 +1,19 @@
+{
+  "usage": {
+    "limit": 2000000,
+    "used": 500000,
+    "remaining": 1500000,
+    "resetTime": "2030-01-01T00:00:00Z"
+  },
+  "limits": [
+    {
+      "window": { "duration": 604800, "timeUnit": "SECOND" },
+      "detail": { "limit": 5000, "used": 500, "resetTime": "2030-01-01T00:00:00Z" }
+    },
+    {
+      "window": { "duration": 300, "timeUnit": "MINUTE" },
+      "detail": { "limit": 1000, "used": 250, "resetTime": "2030-01-02T00:00:00Z" }
+    }
+  ],
+  "user": { "membership": { "level": "pro" } }
+}

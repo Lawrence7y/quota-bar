@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": 403,
+    "message": "This service has been disabled in this account for violation of Terms of Service.",
+    "status": "PERMISSION_DENIED",
+    "details": [{ "reason": "TOS_VIOLATION" }]
+  }
+}

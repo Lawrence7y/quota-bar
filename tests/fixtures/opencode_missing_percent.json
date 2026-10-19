@@ -1,0 +1,11 @@
+{
+  "useBalance": false,
+  "usage": {
+    "rolling": {
+      "status": "rate-limited",
+      "resetsAt": "2026-09-24T00:00:00Z"
+    },
+    "weekly": {},
+    "monthly": { "resetsAt": "not-a-timestamp" }
+  }
+}

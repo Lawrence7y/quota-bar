@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>quota-bar - Windows 任务栏 AI 套餐额度显示条</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #05070C;
+            --bg-dark: #0A0D12;
+            --bg-mid: #0F131C;
+            --bg-elevated: #161D2B;
+            --bg-surface: #1E2636;
+            --accent: #38BDF8;
+            --accent-dim: #2563EB;
+            --text-primary: #E5E7EB;
+            --text-secondary: #9CA3AF;
+            --success: #6EE7B7;
+            --warning: #FBBF24;
+            --danger: #F87171;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-dark) 50%, var(--bg-mid) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: clamp(2rem, 5vw, 4rem);
+        }
+
+        /* 标题区域 */
+        .hero {
+            text-align: center;
+            padding: clamp(3rem, 8vw, 6rem) 0;
+            margin-bottom: clamp(3rem, 6vw, 5rem);
+        }
+
+        .logo {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .tagline {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            color: var(--text-secondary);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .badges {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .badge {
+            background: var(--bg-elevated);
+            padding: 0.5rem 1.25rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* 演示区域 */
+        .demo-section {
+            background: var(--bg-dark);
+            border-radius: 1.5rem;
+            padding: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 3rem;
+            border: 1px solid var(--bg-elevated);
+        }
+
+        .section-title {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin-bottom: 2rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* 模拟任务栏 */
+        .taskbar-demo {
+            background: var(--bg-surface);
+            height: 48px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 1rem;
+            gap: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .taskbar-demo::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.3;
+        }
+
+        .quota-bar {
+            background: var(--bg-elevated);
+            padding: 0.5rem 1.25rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .quota-bar:hover {
+            background: var(--bg-mid);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .quota-item {
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        .quota-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 0.25rem;
+        }
+
+        .dot-green { background: var(--success); }
+        .dot-yellow { background: var(--warning); }
+        .dot-red { background: var(--danger); }
+
+        /* 详情面板 */
+        .detail-panel {
+            background: var(--bg-elevated);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .detail-panel.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .provider-card {
+            background: var(--bg-mid);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--bg-surface);
+        }
+
+        .provider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .provider-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .provider-balance {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-group {
+            margin-bottom: 1rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-deep);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.6s ease;
+            border-radius: 999px;
+        }
+
+        .progress-low { background: var(--success); }
+        .progress-medium { background: var(--warning); }
+        .progress-high { background: var(--danger); }
+
+        /* 功能特性网格 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-elevated);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--bg-surface);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 代码块 */
+        .code-block {
+            background: var(--bg-deep);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            border: 1px solid var(--bg-elevated);
+            margin-top: 1rem;
+        }
+
+        .code-line {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .code-comment {
+            color: #6B7280;
+        }
+
+        .code-command {
+            color: var(--accent);
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px var(--accent);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 4rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1 class="logo">quota-bar</h1>
+            <p class="tagline">Windows 任务栏 AI 套餐额度显示条</p>
+            <div class="badges">
+                <span class="badge">Rust 编写</span>
+                <span class="badge">原生 Win32</span>
+                <span class="badge">单文件 2MB</span>
+                <span class="badge">内存占用 20-30 MB</span>
+                <span class="badge">MIT 许可证</span>
+            </div>
+        </div>
+
+        <!-- 任务栏演示 -->
+        <div class="demo-section">
+            <h2 class="section-title">📊 实时监控，嵌入任务栏</h2>
+            <div class="taskbar-demo">
+                <div class="quota-bar" onclick="toggleDetail()">
+                    <span class="quota-item">
+                        <span class="quota-dot dot-yellow"></span>
+                        <span>MiMo 63%</span>
+                    </span>
+                    ·
+                    <span class="quota-item">
+                        <span class="quota-dot dot-green"></span>
+                        <span>GO 3%</span>
+                    </span>
+                    ·
+                    <span class="quota-item">
+                        <span class="quota-dot dot-green"></span>
+                        <span>AGY 0%</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- 详情面板 -->
+            <div class="detail-panel" id="detailPanel">
+                <div class="provider-card">
+                    <div class="provider-header">
+                        <span class="provider-name">小米 MiMo</span>
+                        <span class="provider-balance">余额: ¥128.50</span>
+                    </div>
+                    <div class="progress-group">
+                        <div class="progress-label">
+                            <span>5小时窗口</span>
+                            <span>63% 已使用</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-medium" style="width: 63%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-group">
+                        <div class="progress-label">
+                            <span>周窗口</span>
+                            <span>45% 已使用</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-medium" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-group">
+                        <div class="progress-label">
+                            <span>月窗口</span>
+                            <span>28% 已使用</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-low" style="width: 28%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-label" style="margin-top: 0.5rem;">
+                        <span style="color: var(--text-secondary); font-size: 0.8125rem;">5小时窗口重置: 2小时37分</span>
+                    </div>
+                </div>
+
+                <div class="provider-card">
+                    <div class="provider-header">
+                        <span class="provider-name">OpenCode Go</span>
+                        <span class="provider-balance">$15.80 可用</span>
+                    </div>
+                    <div class="progress-group">
+                        <div class="progress-label">
+                            <span>5小时窗口</span>
+                            <span>3% 已使用</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-low" style="width: 3%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-group">
+                        <div class="progress-label">
+                            <span>周窗口</span>
+                            <span>12% 已使用</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-low" style="width: 12%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="provider-card">
+                    <div class="provider-header">
+                        <span class="provider-name">Google Antigravity</span>
+                        <span class="provider-balance">582 credits</span>
+                    </div>
+                    <div class="progress-group">
+                        <div class="progress-label">
+                            <span>5小时窗口</span>
+                            <span>0% 已使用</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-low" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心特性 -->
+        <div class="demo-section">
+            <h2 class="section-title">✨ 核心特性</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📌</div>
+                    <h3 class="feature-title">原生嵌入</h3>
+                    <p class="feature-desc">使用 WS_CHILD + SetParent 真正嵌入任务栏，不是悬浮窗或托盘图标。Explorer 崩溃 1 秒内自愈。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 class="feature-title">多账号支持</h3>
+                    <p class="feature-desc">同一供应商可添加多个账号，各自独立抓取、独立显示。菜单中逐账号勾选是否显示在状态栏。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖥️</div>
+                    <h3 class="feature-title">多屏显示</h3>
+                    <p class="feature-desc">每块显示器的任务栏各嵌一条。Per-Monitor V2 DPI，混合缩放和负坐标副屏均正确。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">安全凭据</h3>
+                    <p class="feature-desc">密钥存 Windows 凭据管理器（DPAPI），OAuth 自带登录。完全独立的凭证体系。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">轻量高效</h3>
+                    <p class="feature-desc">无 tokio / GUI 框架，静态链接。常驻 20-30 MB，空闲 CPU ≈ 0。单二进制 2MB，拷贝即用。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3 class="feature-title">智能提醒</h3>
+                    <p class="feature-desc">额度低于阈值托盘气泡告警。过期套餐自动隐藏。凭据失效主动提醒。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 支持的服务 -->
+        <div class="demo-section">
+            <h2 class="section-title">🎯 支持的 AI 服务</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3 class="feature-title">小米 MiMo</h3>
+                    <p class="feature-desc">大陆 + 新加坡版本<br>套餐三窗口 + 金额余额</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">OpenCode Go</h3>
+                    <p class="feature-desc">API Key 认证<br>套餐三窗口 + 余额（视响应）</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">Google Antigravity</h3>
+                    <p class="feature-desc">OAuth 登录（多账号）<br>套餐三窗口 + credits</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">OpenAI Codex</h3>
+                    <p class="feature-desc">OAuth 登录（多账号）<br>5小时/周 + credits</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">智谱 GLM / Z.AI</h3>
+                    <p class="feature-desc">API Key 认证<br>套餐三窗口 + credits</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">DeepSeek</h3>
+                    <p class="feature-desc">API Key 认证<br>余额显示</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">Kimi Code</h3>
+                    <p class="feature-desc">API Key + Cookie<br>套餐三窗口</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">Command Code</h3>
+                    <p class="feature-desc">API Key 认证<br>套餐三窗口</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">OpenRouter</h3>
+                    <p class="feature-desc">API Key 认证<br>套餐三窗口 + 余额</p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="feature-title">阶跃星辰 StepFun</h3>
+                    <p class="feature-desc">平台会话 Cookie<br>5小时/周/月 + 余额</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速开始 -->
+        <div class="demo-section">
+            <h2 class="section-title">🚀 快速开始</h2>
+            <div class="code-block">
+                <div class="code-line"><span class="code-comment"># 构建（需要 Rust 1.85+ 与 MSVC 工具链）</span></div>
+                <div class="code-line"><span class="code-command">cargo build --release</span></div>
+                <div class="code-line"></div>
+                <div class="code-line"><span class="code-comment"># 设置凭据</span></div>
+                <div class="code-line"><span class="code-command">quota-bar setcookie mimo</span> "&lt;平台 cookie&gt;"</div>
+                <div class="code-line"><span class="code-command">quota-bar setkey opencode-go</span> sk-xxxx</div>
+                <div class="code-line"><span class="code-command">quota-bar login antigravity</span> <span class="code-comment"># OAuth 浏览器授权</span></div>
+                <div class="code-line"></div>
+                <div class="code-line"><span class="code-comment"># 启动</span></div>
+                <div class="code-line"><span class="code-command">quota-bar</span></div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2 class="section-title" style="margin-bottom: 1.5rem;">立即体验</h2>
+            <p class="tagline" style="margin-bottom: 2rem;">开源 | MIT 许可证 | Rust 1.85+ | Windows 10/11</p>
+            <a href="https://github.com/yourusername/quota-bar" class="btn">查看 GitHub 仓库</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleDetail() {
+            const panel = document.getElementById('detailPanel');
+            panel.classList.toggle('active');
+        }
+
+        // 动画效果
+        window.addEventListener('load', () => {
+            const cards = document.querySelectorAll('.feature-card, .provider-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 50);
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>

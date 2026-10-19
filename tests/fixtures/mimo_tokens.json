@@ -1,0 +1,28 @@
+{
+  "data": {
+    "limits": [
+      {
+        "type": "TOKENS_LIMIT",
+        "unit": 3,
+        "number": 5,
+        "percentage": 44,
+        "status": "ok",
+        "resetsAt": "2026-09-24T04:00:00Z"
+      },
+      {
+        "type": "TOKEN_LIMIT",
+        "unit": 6,
+        "number": 1,
+        "percent": 7,
+        "nextResetTime": 1789000000000
+      },
+      {
+        "type": "QUOTA",
+        "unit": 5,
+        "number": 1,
+        "usedPercent": 61,
+        "resetInSec": 9999
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "data": {
+    "limits": [
+      { "type": "QUOTA", "limitWindowSeconds": 18000, "percent": 11 },
+      { "type": "QUOTA", "limitWindowSeconds": 604800, "percent": 22, "resetsAt": 1790294400 },
+      { "type": "QUOTA", "limitWindowSeconds": 2592000, "percentage": 33 },
+      { "type": "QUOTA", "window": "5h", "percent": 99 }
+    ]
+  }
+}

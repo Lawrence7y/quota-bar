@@ -1,0 +1,62 @@
+{
+  "creditsRemaining": 888,
+  "groups": [
+    {
+      "displayName": "Gemini Models",
+      "buckets": [
+        {
+          "bucketId": "gemini-5h",
+          "window": "5h",
+          "remainingFraction": 0.4,
+          "resetTime": "2026-09-24T12:00:00Z"
+        },
+        {
+          "bucketId": "gemini-5h-alt",
+          "window": "5 hour rolling",
+          "remainingFraction": 0.2,
+          "resetTime": "2026-09-24T16:00:00Z"
+        },
+        {
+          "bucketId": "gemini-weekly",
+          "window": "weekly",
+          "remainingFraction": 0.75,
+          "resetTime": "2026-09-30T12:00:00Z"
+        },
+        {
+          "bucketId": "gemini-weekly-dup",
+          "window": "weekly",
+          "remainingFraction": 0.75,
+          "resetTime": "2026-09-30T12:00:00Z"
+        },
+        {
+          "bucketId": "gemini-weekly-ms",
+          "window": "week",
+          "remainingFraction": 0.9,
+          "resetTime": 1790856000000
+        },
+        {
+          "bucketId": "gemini-month",
+          "window": "30 day",
+          "remainingFraction": 40
+        },
+        {
+          "bucketId": "gemini-month-proto",
+          "window": "month",
+          "remaining": { "remainingFraction": 0.5 },
+          "resetTime": { "seconds": 1790769600, "nanos": 500000000 }
+        }
+      ]
+    },
+    {
+      "displayName": "Claude and GPT models",
+      "buckets": [
+        {
+          "bucketId": "3p-5h",
+          "window": "5h",
+          "remaining": { "remainingFraction": 0.05 },
+          "resetTime": 1790251200
+        }
+      ]
+    }
+  ]
+}

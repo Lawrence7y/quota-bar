@@ -1,0 +1,10 @@
+{
+  "data": {
+    "subscription": { "level": "ELITE" },
+    "windows": [
+      { "kind": "session", "usedPercent": 15, "resetsAt": "2026-09-24T00:00:00Z", "resetInSec": 500 },
+      { "kind": "weekly", "percent": 25 },
+      { "kind": "other", "percentage": 35, "resetAt": 1790251200 }
+    ]
+  }
+}

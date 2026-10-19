@@ -1,0 +1,28 @@
+{
+  "code": 200,
+  "level": "PRO",
+  "data": {
+    "limits": [
+      {
+        "window": { "duration": 300, "timeUnit": "MINUTES" },
+        "detail": { "percent": 150, "resetsAt": "2026-09-24T00:00:00Z" }
+      },
+      {
+        "window": { "duration": 7, "unit": "DAY" },
+        "detail": { "limit": 1000, "used": 250, "reset_at": 1788782400 }
+      },
+      {
+        "window": { "duration": 30, "unit": "DAYS" },
+        "detail": { "limit": 100, "remaining": 40 }
+      },
+      {
+        "window": { "duration": 1, "timeUnit": "WEEKS" },
+        "detail": { "usagePercent": 88 }
+      },
+      {
+        "window": { "duration": 1, "unit": "MONTH" },
+        "detail": { "ratio": 0.9 }
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "data": {
+    "limits": [
+      { "type": "TIME_LIMIT", "percentage": 90, "resetsAt": "2026-10-01T00:00:00Z" }
+    ],
+    "config": {
+      "creditUsagePercent": 5,
+      "billingPeriodEnd": "2026-09-30T00:00:00Z"
+    }
+  }
+}

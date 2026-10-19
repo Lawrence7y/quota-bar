@@ -1,0 +1,33 @@
+{
+  "code": 200,
+  "msg": "ok",
+  "data": {
+    "level": "flagship",
+    "limits": [
+      {
+        "type": "TOKENS_LIMIT",
+        "unit": 3,
+        "number": 5,
+        "percentage": 42.5,
+        "resetAt": 1893456000,
+        "nextResetTime": 1893456000000
+      },
+      {
+        "type": "TOKENS_LIMIT",
+        "unit": 6,
+        "number": 1,
+        "percentage": 12,
+        "nextResetTime": 1894060800000
+      },
+      {
+        "type": "TIME_LIMIT",
+        "percentage": 63,
+        "resetAt": 1896134400
+      },
+      {
+        "type": "CREDIT_LIMIT",
+        "percentage": 30
+      }
+    ]
+  }
+}

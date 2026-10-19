@@ -1,0 +1,9 @@
+{
+  "data": {
+    "label": "my-key",
+    "usage": 25.5,
+    "limit": 100,
+    "is_free_tier": false,
+    "rate_limit": { "interval": 60, "max_requests": 20 }
+  }
+}

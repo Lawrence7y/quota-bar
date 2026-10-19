@@ -1,0 +1,14 @@
+{
+  "data": {
+    "subscription": { "tier": "MAX" },
+    "rolling": {
+      "percent": 8,
+      "resetsAt": "2026-09-24T08:00:00Z",
+      "status": "rate-limited",
+      "resetInSec": 1234
+    },
+    "weekly": { "usagePercent": 19 },
+    "monthly": { "percent": 52 },
+    "usage": { "rolling": { "percent": 99 } }
+  }
+}
